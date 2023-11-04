@@ -1,0 +1,205 @@
+.MODEL SMALL
+.STACK
+.DATA
+M1 DB 10,13, "ENTER STRING 1:$" 
+M2 DB 10,13, "LENGTH STRING 1:$"
+M3 DB 10,13, "DISPLAY STRING 1:$" 
+M4 DB 10,13, "ENTER STRING 1:$" 
+M5 DB 10,13, "LENGTH STRING 1:$"
+M6 DB 10,13, "DISPLAY STRING 1:$"
+M7 DB 10,13, "COMPARE STRING: $" 
+M8 DB 10,13, "STRING IS NOT EQUAL:$"
+M9 DB 10,13, "EQUAL STRING :$" 
+
+STR1 DB 50,?,50 DUP(?)
+STR2 DB 50,?,50 DUP(?) 
+L1 DB ?
+L2 DB ?
+
+.CODE  
+ DISP MACRO XX
+    MOV AH,09
+    LEA DX,XX
+    INT 21H
+    ENDM
+
+.STARTUP
+  DISP M1
+  MOV AH,0AH
+  LEA DX,STR1
+  INT 21H
+  
+  DISP M2
+  LEA SI,STR1+1
+  MOV CL,[SI]
+  MOV L1,CL
+  ADD CL,30H
+  MOV DL,CL
+  MOV AH,02
+  INT 21H
+  
+  DISP M3
+  LEA SI,STR1+2 
+  MOV CL,L1
+  BACK1:
+  MOV DL,[SI]
+  MOV AH,02
+  INT 21H
+  INC SI
+  DEC CL
+  JNZ BACK1
+  
+  DISP M4
+  MOV AH,0AH
+  LEA DX,STR2
+  INT 21H
+  
+  DISP M5
+  LEA DI,STR2+1
+  MOV CL,[DI]
+  MOV L2,CL
+  ADD CL,30H
+  MOV DL,CL
+  MOV AH,02
+  INT 21H
+  
+  DISP M6
+  LEA DI,STR2+2 
+  MOV CL,L2
+  BACK2:
+  MOV DL,[DI]
+  MOV AH,02
+  INT 21H
+  INC DI
+  DEC CL
+  JNZ BACK2
+  
+  DISP M7
+  MOV CL,L1
+  MOV CH,L2
+  CMP CL,CH
+  JNZ N_EQUAL
+  
+  LEA SI,STR1+2
+  LEA DI,STR2+2
+  
+  BACK3:
+  MOV DL,[SI]
+  CMP DL,[DI]
+  JNZ N_EQUAL
+  INC SI
+  INC DI
+  DEC CL
+  JNZ BACK3
+  
+  DISP M9
+  JMP exit
+  N_EQUAL:
+  
+  DISP M8
+  exit:
+  .EXIT
+  END
+
+----------------------------------------explnation----------------
+.MODEL SMALL
+.STACK
+.DATA
+M1 DB 10,13, "ENTER STRING 1:$"    ; Message for entering the first string
+M2 DB 10,13, "LENGTH STRING 1:$"   ; Message for displaying the length of the first string
+M3 DB 10,13, "DISPLAY STRING 1:$"  ; Message for displaying the first string
+M4 DB 10,13, "ENTER STRING 2:$"    ; Message for entering the second string
+M5 DB 10,13, "LENGTH STRING 2:$"   ; Message for displaying the length of the second string
+M6 DB 10,13, "DISPLAY STRING 2:$"  ; Message for displaying the second string
+M7 DB 10,13, "COMPARE STRING: $"   ; Message for comparing the strings
+M8 DB 10,13, "STRING IS NOT EQUAL:$"  ; Message for indicating strings are not equal
+M9 DB 10,13, "EQUAL STRING :$"     ; Message for indicating equal strings
+
+STR1 DB 50,?,50 DUP(?)  ; First string variable, maximum length 50
+STR2 DB 50,?,50 DUP(?)  ; Second string variable, maximum length 50
+L1 DB ?                ; Length of the first string
+L2 DB ?                ; Length of the second string
+
+.CODE
+DISP MACRO XX
+    MOV AH,09          ; Set AH to 09h (DOS function for displaying a string)
+    LEA DX,XX           ; Load the offset of the message into DX
+    INT 21H             ; Call DOS interrupt 21h to display the message
+    ENDM
+
+.STARTUP
+  DISP M1              ; Display "ENTER STRING 1:"
+  MOV AH,0AH           ; Set AH to 0Ah (DOS function for buffered input)
+  LEA DX,STR1          ; Load the buffer for the first string
+  INT 21H              ; Call DOS interrupt 21h for string input
+
+  DISP M2              ; Display "LENGTH STRING 1:"
+  LEA SI,STR1+1        ; Load the length byte of the first string
+  MOV CL,[SI]          ; Load the length of the first string
+  MOV L1,CL            ; Store the length in L1
+  ADD CL,30H           ; Convert the length to ASCII
+  MOV DL,CL
+  MOV AH,02            ; Set AH to 02h (DOS function for displaying a character)
+  INT 21H              ; Call DOS interrupt 21h to display the length
+
+  DISP M3              ; Display "DISPLAY STRING 1:"
+  LEA SI,STR1+2        ; Load the first character of the first string
+  MOV CL,L1            ; Load the length of the first string
+  BACK1:
+  MOV DL,[SI]          ; Load a character from the first string
+  MOV AH,02            ; Set AH to 02h (DOS function for displaying a character)
+  INT 21H              ; Call DOS interrupt 21h to display the character
+  INC SI               ; Move to the next character
+  DEC CL               ; Decrement the character count
+  JNZ BACK1            ; Repeat until all characters are displayed
+
+  DISP M4              ; Display "ENTER STRING 2:"
+  MOV AH,0AH           ; Set AH to 0Ah (DOS function for buffered input)
+  LEA DX,STR2          ; Load the buffer for the second string
+  INT 21H              ; Call DOS interrupt 21h for string input
+
+  DISP M5              ; Display "LENGTH STRING 2:"
+  LEA DI,STR2+1        ; Load the length byte of the second string
+  MOV CL,[DI]          ; Load the length of the second string
+  MOV L2,CL            ; Store the length in L2
+  ADD CL,30H           ; Convert the length to ASCII
+  MOV DL,CL
+  MOV AH,02            ; Set AH to 02h (DOS function for displaying a character)
+  INT 21H              ; Call DOS interrupt 21h to display the length
+
+  DISP M6              ; Display "DISPLAY STRING 2:"
+  LEA DI,STR2+2        ; Load the first character of the second string
+  MOV CL,L2            ; Load the length of the second string
+  BACK2:
+  MOV DL,[DI]          ; Load a character from the second string
+  MOV AH,02            ; Set AH to 02h (DOS function for displaying a character)
+  INT 21H              ; Call DOS interrupt 21h to display the character
+  INC DI               ; Move to the next character
+  DEC CL               ; Decrement the character count
+  JNZ BACK2            ; Repeat until all characters are displayed
+
+  DISP M7              ; Display "COMPARE STRING:"
+  MOV CL,L1            ; Load the length of the first string
+  MOV CH,L2            ; Load the length of the second string
+  CMP CL,CH            ; Compare the lengths of both strings
+  JNZ N_EQUAL          ; If lengths are not equal, jump to "N_EQUAL"
+
+  LEA SI,STR1+2        ; Load the first character of the first string
+  LEA DI,STR2+2        ; Load the first character of the second string
+  BACK3:
+  MOV DL,[SI]          ; Load a character from the first string
+  CMP DL,[DI]          ; Compare it with the corresponding character in the second string
+  JNZ N_EQUAL          ; If characters are not equal, jump to "N_EQUAL"
+  INC SI               ; Move to the next character in the first string
+  INC DI               ; Move to the next character in the second string
+  DEC CL               ; Decrement the character count
+  JNZ BACK3            ; Repeat until all characters are compared
+
+  DISP M9              ; Display "EQUAL STRING:"
+  JMP EXIT             ; Jump to "EXIT"
+
+  N_EQUAL:
+  DISP M8              ; Display "STRING IS NOT EQUAL:"
+  EXIT:
+  .EXIT                ; Exit the program
+  END

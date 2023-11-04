@@ -1,0 +1,159 @@
+
+
+ .model small
+.data  
+msg DB 10,13,"Smallest no. is : $" 
+
+array dw 1000H,1234H,2030H,4050H,0020H
+smallno dw 0
+.code
+.startup
+mov ah,09h
+lea dx,msg
+int 21h
+
+
+mov ax,@data
+mov ds,ax
+mov cx,05
+mov si,offset array
+mov ax,[si]
+dec cx
+up:inc si
+inc si
+cmp ax,[si]
+jc next
+mov ax,[si]
+next:
+loop up
+mov smallno,ax
+MOV BX,smallno
+AND BH, 0F0H
+MOV CL,4
+SHR BH, CL
+ADD BH, 30H
+MOV DL, BH
+MOV AH,02
+INT 21H    
+MOV BX, smallno
+AND BH, 0FH
+ADD BH, 30H
+MOV DL, BH
+MOV AH,02
+INT 21H
+MOV BX,smallno
+
+AND BL,0F0H
+
+MOV CL,4
+
+SHR BL, CL 
+ADD BL, 30H
+
+MOV DL, BL
+
+MOV AH,02
+
+INT 21H
+
+MOV BX, smallno
+
+AND BL, 0FH   
+ADD BL,30H
+MOV DL,BL
+MOV AH,02
+INT 21H
+
+mov ah,4ch
+int 21h
+ends 
+end
+--------------------------------explanation------------------------------
+.model small
+.data
+msg DB 10,13,"Smallest no. is : $"  ; Message to be displayed with the smallest number
+array DW 1000H,1234H,2030H,4050H,0020H ; Array of 16-bit numbers
+smallno DW 0                         ; Variable to store the smallest number
+.code
+.startup
+mov ah, 09h          ; Set AH to 09h (DOS function for displaying a string)
+lea dx, msg           ; Load the offset of the message into DX
+int 21h               ; Call DOS interrupt 21h to display the message
+
+mov ax, @data        ; Load the address of the data segment into AX
+mov ds, ax           ; Set the data segment to the loaded address
+mov cx, 05           ; Set CX to 5, which is the number of elements in the array
+mov si, offset array ; Load the offset address of the array into SI
+mov ax, [si]         ; Load the first number from the array into AX
+dec cx               ; Decrement the loop counter
+
+up:
+inc si               ; Move to the next element in the array
+inc si
+cmp ax, [si]         ; Compare the current element with the smallest number found so far
+jc next              ; If the current element is smaller, continue to the next element
+mov ax, [si]         ; If the current element is larger, update the smallest number
+next:
+loop up              ; Repeat the process for the remaining elements
+
+mov smallno, ax      ; Store the smallest number in the "smallno" variable
+
+; The following block of code converts the smallest number to decimal and displays it
+MOV BX, smallno      ; Copy the smallest number to BX
+AND BH, 0F0H         ; Clear the lower 4 bits of BH
+MOV CL, 4            ; Set the count for bit shifting
+SHR BH, CL           ; Shift the high 4 bits of BH to the lower 4 bits
+ADD BH, 30H          ; Convert BH to ASCII for the first decimal digit
+MOV DL, BH           ; Move the ASCII digit to DL
+MOV AH, 02H          ; DOS function code to display a character
+INT 21H              ; Invoke DOS interrupt to display the character
+
+MOV BX, smallno      ; Repeat the process for the low 4 bits
+AND BH, 0FH
+ADD BH, 30H
+MOV DL, BH
+MOV AH, 02H
+INT 21H
+
+MOV BX, smallno
+AND BL, 0F0H
+MOV CL, 4
+SHR BL, CL
+ADD BL, 30H
+MOV DL, BL
+MOV AH, 02H
+INT 21H
+
+MOV BX, smallno
+AND BL, 0FH
+ADD BL, 30H
+MOV DL, BL
+MOV AH, 02H
+INT 21H
+
+mov ah, 4ch          ; DOS function code to exit the program
+int 21h
+ret
+
+ends
+end
+Example:
+
+The program is set to find the smallest number from the given array of 16-bit values. The array contains five values: 1000H, 1234H, 2030H, 4050H, and 0020H.
+
+The program starts by displaying "Smallest no. is : " using DOS interrupt 21h.
+
+It initializes the data segment and sets up a loop to go through the array elements.
+
+Inside the loop labeled "up," the program compares each element in the array with the smallest number found so far.
+
+If the current element is smaller, it updates the smallest number (in this case, the smallest number found is 0020H).
+
+After finding the smallest number, the program proceeds to convert and display it as both hexadecimal and decimal representations.
+
+The hexadecimal representation of the smallest number is displayed as "0020."
+
+The decimal representation of the smallest number is displayed as "32" because 0020H is equivalent to 32 in decimal.
+
+The program exits using DOS function 4Ch.
+

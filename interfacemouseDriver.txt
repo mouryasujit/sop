@@ -1,0 +1,129 @@
+.MODEL SMALL
+.STACK
+.DATA
+M1 DB 10,13,"MOUSE DRIVER PRESENT$"
+.CODE
+DISP MACRO XX
+MOV AH,09
+LEA DX,XX
+INT 21H
+ENDM
+.STARTUP
+MOV AX,0000
+INT 33H
+CMP AX,0
+JE LAST
+DISP M1
+MOV AX,0004H
+MOV CX,0000H
+MOV DX,0000H
+INT 33H
+MOV AX,0007H
+MOV CX,0000
+MOV DX,00FFH
+INT 33H
+MOV AX,0008H
+MOV CX,0000
+MOV DX,00FFH
+INT 33H
+P:
+MOV AX,0001H
+INT 33H
+MOV AX,0003H
+INT 33H
+CMP BX,01
+JE LEFT
+JMP RIGHT
+LEFT:
+MOV AX,0011H
+INT 10H
+MOV AH,0CH
+INT 10H
+RIGHT:
+MOV AX,0001H
+INT 33H
+CMP BX,02
+JE LAST
+JMP P
+LAST:
+MOV AX,0000
+INT 10H
+.EXIT
+END
+
+------------------------------------explanation------------------------
+.MODEL SMALL
+.STACK
+.DATA
+M1 DB 10,13,"MOUSE DRIVER PRESENT$" ; Message to be displayed if a mouse driver is present
+.CODE
+DISP MACRO XX
+MOV AH,09
+LEA DX,XX
+INT 21H
+ENDM
+
+.STARTUP
+MOV AX, 0000      ; Initialize AX to 0
+INT 33H            ; Call interrupt 33H (mouse driver)
+CMP AX, 0          ; Compare the value in AX with 0
+JE LAST            ; If AX is zero (no mouse driver), jump to the "LAST" label
+DISP M1            ; Display the message "MOUSE DRIVER PRESENT"
+MOV AX, 0004H      ; Set AX to 0004H (show mouse pointer)
+MOV CX, 0000H      ; Set CX to 0 (mouse pointer position X)
+MOV DX, 0000H      ; Set DX to 0 (mouse pointer position Y)
+INT 33H            ; Call interrupt 33H to show the mouse pointer
+MOV AX, 0007H      ; Set AX to 0007H (set mouse motion threshold)
+MOV CX, 0000       ; Set CX to 0 (no horizontal threshold)
+MOV DX, 00FFH      ; Set DX to 00FFH (vertical threshold)
+INT 33H            ; Call interrupt 33H to set the motion threshold
+
+P:
+MOV AX, 0001H      ; Set AX to 0001H (get mouse status)
+INT 33H            ; Call interrupt 33H to get the mouse status
+MOV AX, 0003H      ; Set AX to 0003H (get mouse position)
+INT 33H            ; Call interrupt 33H to get the mouse position
+CMP BX, 01         ; Compare BX (mouse button status) with 01 (left button)
+JE LEFT            ; If the left button is pressed, jump to the "LEFT" label
+JMP RIGHT          ; Otherwise, jump to the "RIGHT" label
+
+LEFT:
+MOV AX, 0011H      ; Set AX to 0011H (set text cursor position)
+INT 10H            ; Call interrupt 10H to set the text cursor position
+MOV AH, 0CH        ; Set AH to 0CH (display character with attribute)
+INT 10H            ; Call interrupt 10H to display a character with the given attribute
+
+RIGHT:
+MOV AX, 0001H      ; Set AX to 0001H (get mouse status)
+INT 33H            ; Call interrupt 33H to get the mouse status
+CMP BX, 02         ; Compare BX (mouse button status) with 02 (right button)
+JE LAST            ; If the right button is pressed, jump to the "LAST" label
+JMP P              ; Otherwise, jump back to label "P"
+
+LAST:
+MOV AX, 0000      ; Set AX to 0000 (set video mode to text mode)
+INT 10H            ; Call interrupt 10H to set the video mode to text mode
+
+.EXIT
+END
+Example:
+
+The program performs the following actions:
+
+It checks for the presence of a mouse driver by calling interrupt 33H with AX set to 0000.
+
+If a mouse driver is detected (AX is not zero), it displays the message "MOUSE DRIVER PRESENT" using DOS interrupt 21H (function 09h).
+
+It sets up the mouse to show the pointer (AX = 0004H), sets the motion threshold (AX = 0007H), and enters a loop labeled "P" to continuously check for mouse events.
+
+Inside the loop:
+
+It calls interrupt 33H with AX = 0001H to get the mouse status (including button presses).
+It calls interrupt 33H with AX = 0003H to get the mouse position.
+It checks if the left mouse button is pressed (BX = 01) and, if so, jumps to the "LEFT" label to set the text cursor position and display a character with attribute.
+If the right mouse button is pressed (BX = 02), it jumps to the "LAST" label to exit the program.
+The "LEFT" label sets the text cursor position and displays a character with a specified attribute. This part of the code handles left mouse button clicks.
+
+The "RIGHT" label is where you can put code to handle right mouse button clicks.
+
+The "LAST" label sets the video mode back to text mode (AX = 0000) using interrupt 10H and exits the program.

@@ -1,0 +1,88 @@
+Experiment 1: Enter and display 8 bit number
+
+Code 
+
+.model small
+.data
+msg1 db 10,13,"Enter 8 bit nos:$"
+msg2 db 10,13,"8 bit nos is :$"  
+.code
+.startup
+mov ah,09h
+lea dx,msg1
+int 21h
+
+mov ah,01h
+int 21h
+sub al,30h
+mov cl,04h
+shl al,cl
+
+mov bl,al
+mov ah,01h
+int 21h
+sub al,30h
+add al,bl
+mov bh,al
+mov ah,09h
+lea dx,msg2
+int 21h
+
+mov bl,bh
+and bl,0f0h
+shr bl,cl
+add bl,30h
+mov dl,bl
+mov ah,02h
+int 21h
+
+mov bl,bh
+and bl,0fh
+add bl,30h
+mov dl,bl
+mov ah,02h
+int 21h
+.exit
+end
+
+-------------Explanation------------------------------------
+Certainly! Let's walk through the code with an example. We'll use the input "25" as an example.
+
+1. The program starts and displays the message "Enter 8 bit nos:". The user is prompted to input an 8-bit number.
+
+2. The user enters "25" and presses Enter. The ASCII codes for '2' and '5' are stored in the `al` register.
+
+3. `sub al, 30h` subtracts 30h (the ASCII value of '0') from `al`, converting it to numeric values. Now `al` contains 2 (for '2').
+
+4. `shl al, cl` shifts the bits in `al` to the left by 4 positions, effectively multiplying `al` by 16. So `al` now contains 32.
+
+5. `mov bl, al` copies the value in `al` to `bl`, so `bl` also contains 32.
+
+6. The program asks for another input character.
+
+7. The user enters '5', and its ASCII code is stored in `al`.
+
+8. `sub al, 30h` subtracts 30h from `al`, converting it to the numeric value 5.
+
+9. `add al, bl` adds the numeric value of '5' to `bl`, which contains 32. So now, `bl` contains 37.
+
+10. The program displays "8 bit nos is :".
+
+11. `mov bl, bh` copies the value from `bh` to `bl`. `bh` currently contains 37, so `bl` also contains 37.
+
+12. `and bl, 0f0h` performs a bitwise AND operation with 0f0h (binary 11110000). This clears the lower 4 bits of `bl`, leaving only the higher 4 bits. `bl` now contains 32.
+
+13. `shr bl, cl` shifts the bits in `bl` to the right by 4 positions, effectively moving the higher 4 bits to the lower 4 bits. `bl` now contains 2.
+
+14. `add bl, 30h` adds 30h to `bl`, converting it back to its ASCII representation of '2'.
+
+15. `mov dl, bl` copies the ASCII code for '2' to `dl`.
+
+16. `mov ah, 02h` sets up the DOS function to display a character in `dl`.
+
+17. `int 21h` displays the character '2'.
+
+18. The program repeats steps 11 to 17 to display '5' as the second digit.
+
+So, in the end, the program takes the input "25," combines it into an 8-bit value (37 in binary), and displays it as "25" in decimal format. The user sees the output "8 bit nos is :25" on the screen.
+

@@ -1,0 +1,502 @@
+Experiment 1: Enter and display 8 bit number
+
+Code 
+
+.model small
+.data
+msg1 db 10,13,"Enter 8 bit nos:$"
+msg2 db 10,13,"8 bit nos is :$"  
+.code
+.startup
+mov ah,09h
+lea dx,msg1
+int 21h
+
+mov ah,01h
+int 21h
+sub al,30h
+mov cl,04h
+shl al,cl
+
+mov bl,al
+mov ah,01h
+int 21h
+sub al,30h
+add al,bl
+mov bh,al
+mov ah,09h
+lea dx,msg2
+int 21h
+
+mov bl,bh
+and bl,0f0h
+shr bl,cl
+add bl,30h
+mov dl,bl
+mov ah,02h
+int 21h
+
+mov bl,bh
+and bl,0fh
+add bl,30h
+mov dl,bl
+mov ah,02h
+int 21h
+.exit
+end
+
+ 
+
+Experiment 2:
+Addition and subtraction
+
+Code: 
+
+.model small stack
+.data
+M1 DB 10,13,"Addition is : $" 
+M2 DB 10,13,"Subtraction is $"
+NO1 DW 2220H 
+NO2 DW 1110H
+RES DW ?
+.code
+DISP MACRO XX
+MOV AH,09
+LEA DX,XX
+INT 21H
+ENDM
+.startup
+DISP M1
+MOV AX, NO1 
+ADD AX, NO2
+MOV RES,AX  
+CALL DISP1  
+DISP M2
+MOV AX, NO1
+SUB AX, NO2
+MOV RES, AX
+CALL DISP1
+JMP LAST
+DISP1 PROC
+MOV BX, RES
+AND BH, 0F0H
+MOV CL,4
+SHR BH, CL
+ADD BH, 30H
+MOV DL, BH
+MOV AH,02
+INT 21H    
+MOV BX, RES
+AND BH, 0FH
+ADD BH, 30H
+MOV DL, BH
+MOV AH,02
+INT 21H
+MOV BX, RES
+AND BL,0F0H
+MOV CL,4
+SHR BL, CL 
+ADD BL, 30H
+MOV DL, BL
+MOV AH,02
+INT 21H
+MOV BX, RES
+AND BL, 0FH   
+ADD BL,30H
+MOV DL,BL
+MOV AH,02
+INT 21H
+RET
+DISP1 ENDP
+LAST:
+.EXIT
+END
+
+ 
+
+
+Experiment 3: HEX To BCD
+
+Code 
+
+.model small
+.data
+hex dw 0ACH
+counter db 0
+.code
+
+;initialize Data Segment
+mov ax,@DATA
+mov DS,ax
+mov ax,hex
+mov bx,000Ah
+
+L:
+inc counter
+div bx
+push dx
+cmp ax,0
+mov dx,00h
+je exit
+jmp L
+
+exit:
+mov cl,counter
+mov ch,00h
+
+L1:
+pop dx
+add dl,30h
+mov ah,02h
+int 21h
+
+LOOP L1
+;to terminate program
+mov ah,4ch
+int 21h
+ret
+
+ends
+End
+
+
+ 
+
+Experiment 4: String Operations
+
+Code 
+
+.MODEL SMALL
+.STACK
+.DATA
+M1 DB 10,13, "ENTER STRING 1:$" 
+M2 DB 10,13, "LENGTH STRING 1:$"
+M3 DB 10,13, "DISPLAY STRING 1:$" 
+M4 DB 10,13, "ENTER STRING 1:$" 
+M5 DB 10,13, "LENGTH STRING 1:$"
+M6 DB 10,13, "DISPLAY STRING 1:$"
+M7 DB 10,13, "COMPARE STRING: $" 
+M8 DB 10,13, "STRING IS NOT EQUAL:$"
+M9 DB 10,13, "EQUAL STRING :$" 
+
+STR1 DB 50,?,50 DUP(?)
+STR2 DB 50,?,50 DUP(?) 
+L1 DB ?
+L2 DB ?
+
+.CODE  
+ DISP MACRO XX
+    MOV AH,09
+    LEA DX,XX
+    INT 21H
+    ENDM
+
+.STARTUP
+  DISP M1
+  MOV AH,0AH
+  LEA DX,STR1
+  INT 21H
+  
+  DISP M2
+  LEA SI,STR1+1
+  MOV CL,[SI]
+  MOV L1,CL
+  ADD CL,30H
+  MOV DL,CL
+  MOV AH,02
+  INT 21H
+  
+  DISP M3
+  LEA SI,STR1+2 
+  MOV CL,L1
+  BACK1:
+  MOV DL,[SI]
+  MOV AH,02
+  INT 21H
+  INC SI
+  DEC CL
+  JNZ BACK1
+  
+  DISP M4
+  MOV AH,0AH
+  LEA DX,STR2
+  INT 21H
+  
+  DISP M5
+  LEA DI,STR2+1
+  MOV CL,[DI]
+  MOV L2,CL
+  ADD CL,30H
+  MOV DL,CL
+  MOV AH,02
+  INT 21H
+  
+  DISP M6
+  LEA DI,STR2+2 
+  MOV CL,L2
+  BACK2:
+  MOV DL,[DI]
+  MOV AH,02
+  INT 21H
+  INC DI
+  DEC CL
+  JNZ BACK2
+  
+  DISP M7
+  MOV CL,L1
+  MOV CH,L2
+  CMP CL,CH
+  JNZ N_EQUAL
+  
+  LEA SI,STR1+2
+  LEA DI,STR2+2
+  
+  BACK3:
+  MOV DL,[SI]
+  CMP DL,[DI]
+  JNZ N_EQUAL
+  INC SI
+  INC DI
+  DEC CL
+  JNZ BACK3
+  
+  DISP M9
+  JMP exit
+  N_EQUAL:
+  
+  DISP M8
+  exit:
+  .EXIT
+  END
+
+
+ 
+
+Experiment 5:ALP to find largest and smallest number from array
+Code 
+
+ .model small
+.data  
+msg DB 10,13,"Smallest no. is : $" 
+
+array dw 1000H,1234H,2030H,4050H,0020H
+smallno dw 0
+.code
+.startup
+mov ah,09h
+lea dx,msg
+int 21h
+
+
+mov ax,@data
+mov ds,ax
+mov cx,05
+mov si,offset array
+mov ax,[si]
+dec cx
+up:inc si
+inc si
+cmp ax,[si]
+jc next
+mov ax,[si]
+next:
+loop up
+mov smallno,ax
+MOV BX,smallno
+AND BH, 0F0H
+MOV CL,4
+SHR BH, CL
+ADD BH, 30H
+MOV DL, BH
+MOV AH,02
+INT 21H    
+MOV BX, smallno
+AND BH, 0FH
+ADD BH, 30H
+MOV DL, BH
+MOV AH,02
+INT 21H
+MOV BX,smallno
+
+AND BL,0F0H
+
+MOV CL,4
+
+SHR BL, CL 
+ADD BL, 30H
+
+MOV DL, BL
+
+MOV AH,02
+
+INT 21H
+
+MOV BX, smallno
+
+AND BL, 0FH   
+ADD BL,30H
+MOV DL,BL
+MOV AH,02
+INT 21H
+
+mov ah,4ch
+int 21h
+ends 
+end
+
+
+ 
+
+.model small
+.data  
+msg DB 10,13,"Largest no. is : $" 
+
+array dw 1000H,1234H,2030H,4050H,0020H
+largeno dw 0
+.code
+.startup
+mov ah,09h
+lea dx,msg
+int 21h
+
+
+mov ax,@data
+mov ds,ax
+mov cx,05
+mov si,offset array
+mov ax,[si]
+dec cx
+up:inc si
+inc si
+cmp ax,[si]
+jnc next
+mov ax,[si]
+next:
+loop up
+mov largeno,ax
+MOV BX,largeno
+AND BH, 0F0H
+MOV CL,4
+SHR BH, CL
+ADD BH, 30H
+MOV DL, BH
+MOV AH,02
+INT 21H    
+MOV BX, largeno
+AND BH, 0FH
+ADD BH, 30H
+MOV DL, BH
+MOV AH,02
+INT 21H
+MOV BX,largeno
+
+AND BL,0F0H
+
+MOV CL,4
+
+SHR BL, CL 
+ADD BL, 30H
+
+MOV DL, BL
+
+MOV AH,02
+
+INT 21H
+
+MOV BX,largeno
+
+AND BL, 0FH   
+ADD BL,30H
+MOV DL,BL
+MOV AH,02
+INT 21H
+
+mov ah,4ch
+int 21h
+ends 
+end
+ 
+Experiment 8: Interface Mouse drivers
+
+Code: 
+
+.MODEL SMALL
+.STACK
+.DATA
+M1 DB 10,13,"MOUSE DRIVER PRESENT$"
+.CODE
+DISP MACRO XX
+MOV AH,09
+LEA DX,XX
+INT 21H
+ENDM
+.STARTUP
+MOV AX,0000
+INT 33H
+CMP AX,0
+JE LAST
+DISP M1
+MOV AX,0004H
+MOV CX,0000H
+MOV DX,0000H
+INT 33H
+MOV AX,0007H
+MOV CX,0000
+MOV DX,00FFH
+INT 33H
+MOV AX,0008H
+MOV CX,0000
+MOV DX,00FFH
+INT 33H
+P:
+MOV AX,0001H
+INT 33H
+MOV AX,0003H
+INT 33H
+CMP BX,01
+JE LEFT
+JMP RIGHT
+LEFT:
+MOV AX,0011H
+INT 10H
+MOV AH,0CH
+INT 10H
+RIGHT:
+MOV AX,0001H
+INT 33H
+CMP BX,02
+JE LAST
+JMP P
+LAST:
+MOV AX,0000
+INT 10H
+.EXIT
+END
+
+
+ 
+
+Experiment 9: Mixed language programming
+
+Code: 
+#include<iostream.h>
+#include<conio.h>
+int main{
+    int a,b,result;
+    clrscr();
+    cout<<"Enter no. 1";
+    cin>>a;
+    cout<<"Enter no. 2";
+    cin>>b;
+    asm{
+        mov ax,a
+        mov bx,b
+        sub ax,bx
+        mov result,ax
+    }
+    cout<"\n Result:"<<result;
+    getch();    return 0;
+}
+ 
+
+

@@ -1,0 +1,18 @@
+#include<iostream.h>
+#include<conio.h>
+int main{
+    int a,b,result;
+    clrscr();
+    cout<<"Enter no. 1";
+    cin>>a;
+    cout<<"Enter no. 2";
+    cin>>b;
+    asm{
+        mov ax,a
+        mov bx,b
+        sub ax,bx
+        mov result,ax
+    }
+    cout<"\n Result:"<<result;
+    getch();    return 0;
+}

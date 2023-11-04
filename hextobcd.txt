@@ -1,0 +1,108 @@
+Experiment 3: HEX To BCD
+
+Code 
+
+.model small
+.data
+hex dw 0ACH
+counter db 0
+.code
+
+;initialize Data Segment
+mov ax,@DATA
+mov DS,ax
+mov ax,hex
+mov bx,000Ah
+
+L:
+inc counter
+div bx
+push dx
+cmp ax,0
+mov dx,00h
+je exit
+jmp L
+
+exit:
+mov cl,counter
+mov ch,00h
+
+L1:
+pop dx
+add dl,30h
+mov ah,02h
+int 21h
+
+LOOP L1
+;to terminate program
+mov ah,4ch
+int 21h
+ret
+
+ends
+End
+----------------------------explanation------------------------------
+.model small
+.data
+hex dw 0ACH          ; The hexadecimal number to be converted
+counter db 0         ; Counter to keep track of the number of BCD digits
+.code
+
+; Initialize Data Segment
+mov ax, @DATA
+mov DS, ax
+
+; Load the hexadecimal number into AX
+mov ax, hex
+mov bx, 000Ah        ; Set BX to 10 (decimal), which will be used for division
+
+L:
+inc counter          ; Increment the counter to keep track of BCD digits
+div bx              ; Divide AX by 10, result in AX, remainder in DX
+push dx              ; Push the remainder (BCD digit) onto the stack
+
+cmp ax, 0            ; Compare the quotient with 0
+mov dx, 00h          ; Clear DX
+je exit              ; If the quotient is 0, exit the loop
+jmp L               ; Otherwise, continue the loop
+
+exit:
+mov cl, counter      ; Copy the counter value to CL
+mov ch, 00h          ; Clear CH
+
+L1:
+pop dx               ; Pop a BCD digit from the stack
+add dl, 30h          ; Convert the BCD digit to ASCII
+mov ah, 02h          ; DOS function code to display a character
+int 21h              ; Display the BCD digit
+
+LOOP L1              ; Loop until all BCD digits are displayed
+
+; Terminate the program
+mov ah, 4Ch
+int 21h
+ret
+
+ends
+End
+Example:
+
+The program is set to convert the hexadecimal number 0ACH into BCD format.
+
+The program starts by loading 0ACH into the ax register.
+
+It initializes the bx register to 10, which will be used as the divisor in the division operation.
+
+Inside the loop labeled as "L," the program performs the following steps:
+
+Increments the counter to keep track of the number of BCD digits.
+Divides ax by 10, with the quotient stored in ax and the remainder in dx.
+The remainder (BCD digit) is pushed onto the stack for later display.
+It compares the quotient ax with 0. If ax is zero, it means that we have converted all the digits.
+Once all BCD digits are found and pushed onto the stack, the program exits the loop and proceeds to the "L1" loop to display the BCD digits.
+
+In the "L1" loop, the program pops each BCD digit from the stack, converts it to an ASCII character by adding 30h, and then displays it using DOS interrupt 21h with function 02h.
+
+The program continues to loop until all BCD digits are displayed.
+
+In this example, the hexadecimal number 0ACH is converted into BCD, and the program displays the BCD digits one by one. The result would be displayed as "010203" because the BCD representation of 0ACH is 010203.

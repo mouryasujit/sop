@@ -1,0 +1,146 @@
+
+.model small stack
+.data
+M1 DB 10,13,"Addition is : $" 
+M2 DB 10,13,"Subtraction is $"
+NO1 DW 2220H 
+NO2 DW 1110H
+RES DW ?
+.code
+DISP MACRO XX
+MOV AH,09
+LEA DX,XX
+INT 21H
+ENDM
+.startup
+DISP M1
+MOV AX, NO1 
+ADD AX, NO2
+MOV RES,AX  
+CALL DISP1  
+DISP M2
+MOV AX, NO1
+SUB AX, NO2
+MOV RES, AX
+CALL DISP1
+JMP LAST
+DISP1 PROC
+MOV BX, RES
+AND BH, 0F0H
+MOV CL,4
+SHR BH, CL
+ADD BH, 30H
+MOV DL, BH
+MOV AH,02
+INT 21H    
+MOV BX, RES
+AND BH, 0FH
+ADD BH, 30H
+MOV DL, BH
+MOV AH,02
+INT 21H
+MOV BX, RES
+AND BL,0F0H
+MOV CL,4
+SHR BL, CL 
+ADD BL, 30H
+MOV DL, BL
+MOV AH,02
+INT 21H
+MOV BX, RES
+AND BL, 0FH   
+ADD BL,30H
+MOV DL,BL
+MOV AH,02
+INT 21H
+RET
+DISP1 ENDP
+LAST:
+.EXIT
+END
+--------------------------explanation----------------------------
+.model small stack
+.data
+M1 DB 10,13,"Addition is : $"  ; Message for addition
+M2 DB 10,13,"Subtraction is $" ; Message for subtraction
+NO1 DW 2220H                  ; First 16-bit number (example: 2220)
+NO2 DW 1110H                  ; Second 16-bit number (example: 1110)
+RES DW ?                       ; Result storage
+.code
+DISP MACRO XX
+MOV AH,09                      ; DOS function code to display a string
+LEA DX,XX                      ; Load the address of the message
+INT 21H                        ; Invoke DOS interrupt to display the message
+ENDM
+
+.startup
+DISP M1                       ; Display "Addition is : "
+
+MOV AX, NO1                   ; Load the first number into AX
+ADD AX, NO2                   ; Add the second number to AX
+MOV RES, AX                   ; Store the result in RES
+CALL DISP1                    ; Call the DISP1 macro to display the result
+
+DISP M2                       ; Display "Subtraction is "
+
+MOV AX, NO1                   ; Load the first number into AX again
+SUB AX, NO2                   ; Subtract the second number from AX
+MOV RES, AX                   ; Store the result in RES
+CALL DISP1                    ; Call the DISP1 macro to display the result
+
+JMP LAST                      ; Jump to the LAST label
+
+DISP1 PROC
+MOV BX, RES                   ; Copy the result to BX register
+AND BH, 0F0H                  ; Clear the lower 4 bits of BH
+MOV CL, 4                     ; Set the count for bit shifting
+SHR BH, CL                    ; Shift the high 4 bits of BH to the lower 4 bits
+ADD BH, 30H                   ; Convert BH to ASCII for the first decimal digit
+MOV DL, BH                    ; Move the ASCII digit to DL
+MOV AH, 02H                   ; DOS function code to display a character
+INT 21H                       ; Invoke DOS interrupt to display the character
+
+MOV BX, RES                   ; Repeat the process for the low 4 bits
+AND BH, 0FH
+ADD BH, 30H
+MOV DL, BH
+MOV AH, 02H
+INT 21H
+
+MOV BX, RES
+AND BL, 0F0H
+MOV CL, 4
+SHR BL, CL
+ADD BL, 30H
+MOV DL, BL
+MOV AH, 02H
+INT 21H
+
+MOV BX, RES
+AND BL, 0FH
+ADD BL, 30H
+MOV DL, BL
+MOV AH, 02H
+INT 21H
+RET
+
+DISP1 ENDP
+
+LAST:
+.EXIT
+END
+Let's work through the example with the provided numbers (NO1=2220, NO2=1110):
+
+The program starts and displays "Addition is : ".
+
+It loads NO1 (2220) into AX and adds NO2 (1110) to it. The result (3330) is stored in RES.
+
+The DISP1 macro is called to display the result (3330) as "33" in decimal.
+
+The program then displays "Subtraction is ".
+
+It loads NO1 (2220) into AX again and subtracts NO2 (1110) from it. The result (1110) is stored in RES.
+
+The DISP1 macro is called again to display the result (1110) as "11" in decimal.
+
+So, the program calculates and displays the addition and subtraction results and converts them into two decimal digits for each result.
