@@ -1,0 +1,320 @@
+**8 bit addition**:
+
+.model small
+.data
+num1 db 80h
+num2 db 08h
+res db ?
+.code
+mov ax,@data
+mov ds,ax
+mov al,num1
+mov bl,num2
+add al,bl
+mov res,al
+mov ah,4ch
+int 21H
+ends
+end
+
+
+**16 bit addition with PROC**:
+
+.model small
+.data
+num1 dw 1234h
+num2 dw 1000h
+res dw ?
+.code
+mov ax,@data
+mov ds,ax
+call addproc
+mov ah,4ch
+int 21H
+addproc proc
+mov ax,num1
+mov bx,num2
+add ax,bx
+mov res,ax
+ret
+endp
+ends
+end
+
+**16 bit addition with MACRO**:
+
+addm macro num1,num2
+mov ax,num1
+mov bx,num2
+add ax,bx
+endm
+.model small
+.data
+num1 dw 1234h
+num2 dw 1000h
+res dw ?
+.code
+mov ax,@data
+mov ds,ax
+addm num1,num2
+mov ah,4ch
+int 21H
+ends
+end
+
+**16 bit addition**:
+
+.model small
+.data
+num1 dw 1000h
+num2 dw 2000h
+res dw ?
+.code
+mov ax,@data
+mov ds,ax
+mov ax,num1
+mov bx,num2
+add ax,bx
+mov res,ax
+mov ah,4ch
+int 21H
+ends
+end
+
+
+**8 bit substraction**:
+
+.model small
+.data
+num1 db 80h
+num2 db 08h
+res db ?
+.code
+mov ax,@data
+mov ds,ax
+mov al,num1
+mov bl,num2
+sub al,bl
+mov res,al
+mov ah,4ch
+int 21H
+ends
+end
+
+
+**16 bit subtraction with PROC**:
+
+.model small
+.data
+num1 dw 1234h
+num2 dw 1000h
+res dw ?
+.code
+mov ax,@data
+mov ds,ax
+call subproc
+mov ah,4ch
+int 21H
+subproc proc
+mov ax,num1
+mov bx,num2
+sub ax,bx
+mov res,ax
+ret
+endp
+ends
+end
+
+
+**16 bit subtraction with MACRO**:
+
+subm macro num1,num2
+mov ax,num1
+mov bx,num2
+sub ax,bx
+endm
+.model small
+.data
+num1 dw 1234h
+num2 dw 1000h
+res dw ?
+.code
+mov ax,@data
+mov ds,ax
+subm num1,num2
+mov ah,4ch
+int 21H
+ends
+end
+
+**16 bit substraction**:
+
+.model small
+.data
+num1 dw 3000h
+num2 dw 2000h
+res dw ?
+.code
+mov ax,@data
+mov ds,ax
+mov ax,num1
+mov bx,num2
+sub ax,bx
+mov res,ax
+mov ah,4ch
+int 21H
+ends
+end
+
+
+**Addition and subtraction with MACRO and PROC**:
+
+.model small
+.stack
+.data
+M1 db 10,13,"addition is:$"
+M2 db 10,13,"subtraction is:$"
+no1 dw 2000h
+no2 dw 1000h
+res dw ?
+
+.code
+disp macro xx
+mov ah,09
+lea dx,xx
+int 21h
+endm
+
+.startup
+disp M1
+mov ax,no1
+add ax,no2
+mov res,ax
+call disp1
+
+disp M2
+mov ax,no1
+sub ax,no2
+mov res,ax
+call disp1
+jmp last
+disp1 proc
+mov bx,res
+and bh,0f0h
+mov cl,4
+shr bh,cl
+add bh,30h
+mov dl,bh
+mov ah,02
+int 21h
+mov bx,res
+and bh,0fh
+add bh,30h
+mov dl,bh
+mov ah,02
+int 21h
+mov bx,res
+and bl,0f0h
+mov cl,4
+shr bl,cl
+add bl,30h
+mov dl,bl
+mov ah,02
+int 21h
+mov bx,res
+and bl,0fh
+add bl,30h
+mov dl,bl
+mov ah,02
+int 21h
+ret
+disp1 endp
+last:
+.exit
+end
+
+
+
+
+
+
+Theory:
+Definition of Macro:
+The assembly language programmer often finds certain statements being repeated in the
+program. The programmer can take the advantage of ‘MACRO’ facility where MACRO is
+defined to be –Single line abbreviation for group of instructions.
+The template to be followed for defining a MACRO is as follows:
+
+MACRO Start of Definition
+
+Macro Name
+
+Macro Body
+
+MEND END of Macro definition
+
+Definition &amp; function of Macro processor:
+
+• Macro processor is a program which is responsible for processing the macro.
+• There are four basic tasks/ functions that any macro instruction processor must
+perform.
+1. Recognize macro definition:
+A macro instruction processor must recognize macro definitions identified by the
+MACRO and MEND pseudo-ops.
+1. Save the definitions:
+The processor must store the macro instruction definitions, which it will need for
+expanding macro calls.
+2. Recognize calls:
+The processor must recognize macro calls that appear as operation mnemonics. This
+suggests that macro names be handled as a type of op-code.
+
+3. Expand calls and substitute arguments:
+The processor must substitute for dummy or macro definition arguments the
+corresponding arguments from a macro call; the resulting symbolic (in this case,
+assembly language) text is then substituted for the macro call. This text, of course, may
+contain additional macro definitions or calls.
+In summary: the macro processor must recognize and process macro definitions
+and macro calls.
+
+The template to be followed for defining a Procedure is as follows:
+
+PROC Proc_name Start of Definition
+
+RET
+Proc_name ENDP END of procedure
+
+MACROS -PROCEDURE / Subroutine
+1 The corresponding machine
+code is written every time a
+macro is called in a program.
+
+1 The Corresponding m/c code is written
+only once in memory
+
+2 Program takes up more memory
+space.
+
+2 Program takes up comparatively less
+memory space.
+
+3 No transfer of program counter.
+3 Transferring of program counter is required.
+
+4 No overhead of using stack for
+transferring control.
+
+4 Overhead of using stack for transferring
+control.
+
+5 Execution is fast 5 Execution is comparatively slow.
+6 Assembly time is more. 6 Assembly time is comparatively less.
+7 More advantageous to the
+programs when repeated group
+of instruction is too short.
+
+7 More advantageous to the programs
+when repeated group of instructions is
+quite large.
+
+Application: Use of Macros and procedure in the Assembly Language programming to write
+modular program.
